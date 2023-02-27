@@ -15,34 +15,39 @@ function Format-Size() {
     }
 }
 
-$Entry = ""
-while (@("q", "quit") -notcontains $Entry.ToLower())
+function Get-MemoryUsage()
 {
-    $TotalMemory = 0
-    $Programs = Get-Process
-    foreach ($Program in $Programs)
+    $Entry = ""
+    while (@("q", "quit") -notcontains $Entry.ToLower())
     {
-        $TotalMemory += $Program.WorkingSet
-    }
-
-    $FormattedPrograms = @()
-    $MemoryTotal = 0
-    ($Programs | Sort-Object -Descending -Property WorkingSet) | ForEach-Object {
-        $MemoryTotal += $_.WorkingSet
-        $FormattedPrograms += New-Object psobject -Property @{
-            Name = $_.ProcessName
-            Memory = (Format-Size $_.WorkingSet)
-            MemTotal = (Format-Size $MemoryTotal)
-            Title = $_.MainWindowTitle
-            Path = $_.Path
+        $TotalMemory = 0
+        $Programs = Get-Process
+        foreach ($Program in $Programs)
+        {
+            $TotalMemory += $Program.WorkingSet
         }
+
+        $FormattedPrograms = @()
+        $MemoryTotal = 0
+        ($Programs | Sort-Object -Descending -Property WorkingSet) | ForEach-Object {
+            $MemoryTotal += $_.WorkingSet
+            $FormattedPrograms += New-Object psobject -Property @{
+                Name = $_.ProcessName
+                Memory = (Format-Size $_.WorkingSet)
+                MemTotal = (Format-Size $MemoryTotal)
+                Title = $_.MainWindowTitle
+                Path = $_.Path
+            }
+        }
+
+        $FormattedPrograms | Format-Table -Property Name, Memory, MemTotal, Title, Path
+
+        Write-Host "Total usage: " -NoNewline -ForegroundColor Yellow
+        Write-Host (Format-Size $TotalMemory) -ForegroundColor White
+        Write-Host "Press enter to run again or type Q to quit."
+        Write-Host "> " -NoNewline
+        $Entry = Read-Host
     }
-
-    $FormattedPrograms | Format-Table -Property Name, Memory, MemTotal, Title, Path
-
-    Write-Host "Total usage: " -NoNewline -ForegroundColor Yellow
-    Write-Host (Format-Size $TotalMemory) -ForegroundColor White
-    Write-Host "Press enter to run again or type Q to quit."
-    Write-Host "> " -NoNewline
-    $Entry = Read-Host
 }
+
+Get-MemoryUsage
