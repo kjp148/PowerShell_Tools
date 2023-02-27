@@ -18,7 +18,7 @@ function Format-Size() {
 function Get-MemoryUsage()
 {
     $Entry = ""
-    while (@("q", "quit") -notcontains $Entry.ToLower())
+    do
     {
         $Programs = Get-Process
         $FormattedPrograms = @()
@@ -41,7 +41,7 @@ function Get-MemoryUsage()
         Write-Host "Press enter to run again or type Q to quit."
         Write-Host "> " -NoNewline
         $Entry = Read-Host
-    }
+    } while (@("q", "quit") -notcontains $Entry.ToLower())
 }
 
 Get-MemoryUsage
